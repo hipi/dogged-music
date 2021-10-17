@@ -24,6 +24,14 @@ export default defineConfig({
   resolve: {
     alias: {
       '@/': new URL('./src/', import.meta.url).pathname,
+      '~': new URL('./node_modules/', import.meta.url).pathname,
     },
   },
+  // css: {
+  //   preprocessorOptions: {
+  //     scss: {
+  //       additionalData: `@use "~/styles/element/index.scss" as *;`,
+  //     },
+  //   },
+  // },
 })

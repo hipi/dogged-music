@@ -6,7 +6,6 @@ const routes = [
     name: 'Home',
     component: () => import(/* webpackChunkName: "home" */ '../views/home.vue'),
   },
-
   {
     path: '/explore',
     name: 'Explore',
