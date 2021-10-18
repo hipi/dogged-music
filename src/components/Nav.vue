@@ -23,18 +23,16 @@
 
       <div class="avatar-container">
         <img src="http://s4.music.126.net/style/web2/img/default/default_avatar.jpg?param=60y60" class="avatar" @click="handleOpenMenu" />
-        <div ref="menu" class="menu" :style="menuStyle" @blur="handleCloseMenu">
-          <div class="menu-item">
-            <svg-icon name="login" />
-            登录
-          </div>
-          <div class="menu-item">
-            <svg-icon name="login" />
-            登录
-          </div>
-          <div class="menu-item divided">
-            <svg-icon name="login" />
-            登录
+        <div class="context-menu">
+          <div v-if="isShowMenu" ref="menu" class="menu" :style="menuStyle" tabindex="-1" @blur="handleCloseMenu" @click="handleCloseMenu">
+            <div class="menu-item" @click="menuTo('/login')">
+              <svg-icon name="login" />
+              登录
+            </div>
+            <div class="menu-item" @click="menuTo('/settings')">
+              <svg-icon name="settings" />
+              设置
+            </div>
           </div>
         </div>
       </div>
@@ -43,7 +41,7 @@
 </template>
 <script>
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 
 export default {
   components: {},
@@ -62,26 +60,32 @@ export default {
 
     // TODO: doSearch
     const doSearch = () => {}
-    // TODO: handleDropdownItemClick
 
     const menuStyle = ref({})
     const menu = ref(null)
+    const isShowMenu = ref(false)
     const handleOpenMenu = (e) => {
-      console.log(menu.value.offsetHeight)
-      let top = e.y
-      let left = e.x
-      let largestHeight = window.innerHeight - menu.value.offsetHeight - 25
-      let largestWidth = window.innerWidth - menu.value.offsetWidth - 25
-      if (top > largestHeight) top = largestHeight
-      if (left > largestWidth) left = largestWidth
-      menuStyle.value = {
-        top: top + 'px',
-        left: left + 'px',
-      }
+      isShowMenu.value = true
+      nextTick(() => {
+        // tabindex="-1" 为了出发 blur 事件
+        menu.value.focus()
+        let top = e.y
+        let left = e.x
+        let largestHeight = window.innerHeight - menu.value.offsetHeight - 25
+        let largestWidth = window.innerWidth - menu.value.offsetWidth - 25
+        if (top > largestHeight) top = largestHeight
+        if (left > largestWidth) left = largestWidth
+        menuStyle.value = {
+          top: top + 'px',
+          left: left + 'px',
+        }
+      })
     }
     const handleCloseMenu = () => {
-      console.log(11111)
-      menuStyle.value.display = 'none'
+      isShowMenu.value = false
+    }
+    const menuTo = (where) => {
+      $router.push(where)
     }
     return {
       go,
@@ -90,7 +94,9 @@ export default {
       handleOpenMenu,
       menuStyle,
       menu,
+      isShowMenu,
       handleCloseMenu,
+      menuTo,
     }
   },
 }
@@ -101,11 +107,12 @@ nav {
   justify-content: space-between;
   align-items: center;
   height: 64px;
-  padding: 0 10vw;
+  padding: 0 var(--padding-left-width);
   backdrop-filter: saturate(180%) blur(20px);
   background-color: var(--color-navbar-bg);
   position: relative;
   z-index: 99;
+  overflow: hidden;
   .nav-buttons {
     flex: 1;
     display: flex;
@@ -207,7 +214,7 @@ nav {
       }
     }
     .avatar-container {
-      margin-left: 12px;
+      margin: 0 12px;
       .avatar {
         user-select: none;
         height: 30px;
@@ -230,6 +237,9 @@ nav {
         padding: 6px;
         z-index: 1000;
         -webkit-app-region: no-drag;
+        &:focus {
+          outline: none;
+        }
         .menu-item {
           font-weight: 600;
           font-size: 14px;
